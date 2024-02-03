@@ -16,7 +16,7 @@ export const register = async (req,res,next) => {
         })
 
         await newUser.save();
-        res.status(200).send("user register successfully")
+        res.status(200).send("User register successfully")
     }catch(err){
         next(err)
     }
@@ -24,20 +24,19 @@ export const register = async (req,res,next) => {
 }
 
 export const login = async (req,res,next) => {
-
     try{
         const user = await User.findOne({username: req.body.username});
         if(!user){
             return next(createError(404, "Username/password are invalid"))
         }
-
+        console.log(user)
         const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password)
+
         if(!isPasswordCorrect){
             return next(createError(400, "Username/password are invalid"))
         }
 
         const token = jwt.sign({id: user._id, isAdmin: user.isAdmin}, process.env.JWT);
-
         const {password, isAdmin, ...otherDetails} = user._doc;
 
         res.cookie("access_token", token, {
